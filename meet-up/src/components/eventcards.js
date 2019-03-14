@@ -8,6 +8,8 @@ import React, { Component } from 'react';
       <div>
         <p>Here we will make shopcards</p>
         <p>{this.props.date}</p>
+        <p>{this.props.place}</p>
+        <p>{this.props.country}</p>
       </div>
     )
   }
