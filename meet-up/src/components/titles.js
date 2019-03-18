@@ -4,8 +4,8 @@ class Titles extends  React.Component {
     render() {
         return (
             <div className="App-header">
-                <h1>Weather finder</h1>
-                <h4>Find out temperature, conditions and more......</h4>
+                <h1>EVENTOMANIA</h1>
+                <h4>hitta din evenemang......</h4>
             </div>
         );}
 };

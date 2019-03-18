@@ -15,6 +15,35 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
 }
+/* ! Header */
+.App-header{
+  background-color:#E53E3A;
+  text-align: center;
+  color: rgb(245, 238, 229);
+
+}
+.App-header > h1,
+.App-header > h4{
+  display: inline;
+  align-content: center;
+  align-items: baseline;
+  text-align: center;
+  padding-left:3%;
+}
+/* ! Form */
+.title-form {
+  margin-top: 2%;
+  text-align: center;
+  width: 100%;
+
+}
+.title-form > h4{
+  width: 100%;
+  }
+.form-control{
+  margin-right: 5%;
+}
+/* ! Eventcards/Main */
 .eventcards{
   display: flex;
   flex-wrap: wrap;
@@ -57,6 +86,5 @@ h4{
   box-shadow: 3px 3px 20px rgba(0, 0, 0, .5);
   /* outline: 2px double rebeccapurple; */
   margin: 2% 3%;
-  
-  
 }
+

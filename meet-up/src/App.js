@@ -41,8 +41,8 @@
         mode: "view"
     };
 
-    pushEvents = async e => {
-        e.preventDefault();
+    pushEvents = async () => {
+        
         this.App = firebase.initializeApp(DB_CONFIG);
         const ref = firebase.database().ref("greatApp");
         const apiKeyTicketMaster = "OCovzlLJGE2VUk2YuheH8Nm0b9YNAC6v";
@@ -74,11 +74,15 @@
 
         ref.on("value", function(snapshot) {
         snapshot.val();
-        console.log(snapshot, 9);
+        
         });
         ref.child("ticketmaster").set(dataTM);
         ref.child("eventbrite").set(dataEB);
         ref.child("helsinborg").set(dataHbg);
+        ref.child('helsingborg').on("value", function(snapshot) {
+            helsingborgDataDb= snapshot.val();
+            console.log(snapshot.val(), 222222222222222222222);
+            });
         // data.forEach((element,index) => {
         //     console.log(data[index].location);
         // });
@@ -103,6 +107,7 @@
             if (
             helsingborgDataDb[item]._embedded.location &&
             helsingborgDataDb[item]._embedded.location[0].country &&
+            helsingborgDataDb[item]._embedded.location[0].country &&
             helsingborgDataDb[item].content.rendered &&
             helsingborgDataDb[item].featured_media
             ) {
@@ -124,11 +129,12 @@
             events
             .child('hbg').child(item)
                 .set({
-                city: helsingborgDataDb[item]._embedded.location[0].city,
+                city: 'helsingborgDataDb[item]._embedded.location[0].city',
                 country: "emptyValue",
                 description: helsingborgDataDb[item].content.plain_text,
                 title: helsingborgDataDb[item].title.plain_text,
-                id: helsingborgDataDb[item].id
+                id: helsingborgDataDb[item].id,
+                
                 });
             } else {
             events
@@ -147,7 +153,7 @@
 
         return helsingborgDataDb;
         });
-        events.child('hbg').on("value", function(snapshot) {
+        events.child('hbg').limitToFirst(15).on("value", function(snapshot) {
             eventsData = snapshot.val();
             console.log(eventsData,9);
         });
@@ -170,14 +176,16 @@
         });
         }, 4000);
     };
+    
 
     render() {
+         this.getEvents();
         console.log("[~] Start render...", this.state.data);
         if (this.state.mode === "view") {
         return (
             <div>
             <Titles />
-            <Forms pushEvents={this.pushEvents} getEvents={this.getEvents} />
+            <Forms  getEvents={this.getEvents} />
             <Weather />
             <p> </p>
             <h1>YA VIJU</h1>
@@ -188,7 +196,7 @@
         return (
             <div>
             <Titles />
-            <Forms pushEvents={this.pushEvents} getEvents={this.getEvents} />
+            <Forms  getEvents={this.getEvents} />
             <Weather />
             <p> </p>
             <h1>YA VIJU</h1>
