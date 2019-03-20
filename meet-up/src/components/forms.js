@@ -9,7 +9,7 @@ class Forms extends React.Component {
                 <form   className=" row"> 
                     <input type="text" name="city" placeholder="Which City..." className=" form-control  form-control-lg  col-md-4"/>
                     <input type="date" name="country" placeholder="Which country"  className="form-control form-control-lg col-md-4" />
-                    <button className="">Push Json</button>
+                   
                 </form>
                 <form onSubmit={this.props.getEvents} > 
                     <button >Get Fun</button>

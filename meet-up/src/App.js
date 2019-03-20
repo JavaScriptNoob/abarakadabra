@@ -10,13 +10,9 @@
     let long;
     let geohashValue;
     let helsingborgDataDb;
-    let eventsData
-    let eventBriteDataDb;
-    let ticketMasterDataDb;
-    let place;
-    let arrayDescription = [];
-    let location = [];
-    let img = [];
+    let eventsData;
+    let helsingborgSnapshot;
+    
 
     console.clear();
 
@@ -28,7 +24,7 @@
     var geohash = require("ngeohash");
     setTimeout(function(params) {
     geohashValue = geohash.encode(lat, long);
-    // console.log(geohashValue,1)
+    console.log(geohashValue,1)
     }, 5000);
 
     var selfreference;
@@ -36,74 +32,57 @@
     class App extends React.Component {
     state = {
         data: [" "],
-        place: undefined,
-        country: undefined,
-        mode: "view"
+        place: ' ',
+        country: ' ',
+        mode: "view",
+        numbersOfItems:11
     };
-
+    
     pushEvents = async () => {
-        
+        // e.preventDefault();
         this.App = firebase.initializeApp(DB_CONFIG);
         const ref = firebase.database().ref("greatApp");
-        const apiKeyTicketMaster = "OCovzlLJGE2VUk2YuheH8Nm0b9YNAC6v";
-        const apiEventBrite = "https://www.eventbriteapi.com/v3/events/search/?";
-        const eventBriteAcessToken = "4VKAXBYN7RWY7C237LXP";
-        const eventBriteApiCall =
-        apiEventBrite +
-        `sort_by=date&location.latitude=56.04673&location.longitude=12.69437&token=${eventBriteAcessToken}`;
-        // const city = e.target.elements.city.value;
-        // const country = e.target.elements.country.value;
+        
         const apiCallHelsignborg = await fetch(
         "https://api.helsingborg.se/event/json/wp/v2/event/?_embed&per_page=100"
         );
 
-        const apiCallTicketMaster = await fetch(
-        `https://app.ticketmaster.com/discovery/v2/events.json?&geoPoint=${geohashValue}&apikey=${apiKeyTicketMaster}`
-        );
-        const apiCallEventBrite = await fetch(eventBriteApiCall);
-        const dataHbg = await apiCallHelsignborg.json();
-        const dataTM = await apiCallTicketMaster.json();
-        const dataEB = await apiCallEventBrite.json();
-        console.log(
-        apiCallTicketMaster,
-        dataTM,
-        dataEB,
-        apiCallEventBrite,
-        dataHbg
-        );
-
-        ref.on("value", function(snapshot) {
-        snapshot.val();
         
-        });
-        ref.child("ticketmaster").set(dataTM);
-        ref.child("eventbrite").set(dataEB);
-        ref.child("helsinborg").set(dataHbg);
-        ref.child('helsingborg').on("value", function(snapshot) {
-            helsingborgDataDb= snapshot.val();
-            console.log(snapshot.val(), 222222222222222222222);
-            });
-        // data.forEach((element,index) => {
-        //     console.log(data[index].location);
-        // });
-        // console.log(lat, 11111);
-        // console.log(long,2222);
-    };
+        const dataHbg = await apiCallHelsignborg.json();
+        
+        console.log(
+            dataHbg
+        );
+        ref.child('helsingborg').on('value',function (snapshot){
+            helsingborgSnapshot = snapshot.val();
+               });
+        if(helsingborgSnapshot === dataHbg  ){ref.child('helsinborg').set(dataHbg,console.log);}
+        
+        
+       
+        
+       
+    }
+    
     getEvents = async e => {
         e.preventDefault();
-        this.App = firebase.initializeApp(DB_CONFIG);
+        console.log('click');
+        // let firebasedb = firebase.initializeApp(DB_CONFIG);
+        console.log('click111');
         const ref = firebase.database().ref("greatApp");
+        console.log('click222');
         const events = firebase.database().ref("events");
+        console.log('click333');
         let callFunction = () => {
         this.setState({ mode: "edit" });
         };
         callFunction();
         ref.child("helsinborg").on("value", function(snapshot) {
         helsingborgDataDb = snapshot.val();
-
+        console.log('click555');
         console.log(helsingborgDataDb[0], "aaaaaaaaaaaa");
         helsingborgDataDb.forEach((element, item, index) => {
-            console.log(helsingborgDataDb);
+            
             if (
             helsingborgDataDb[item]._embedded.location &&
             helsingborgDataDb[item]._embedded.location[0].country &&
@@ -153,9 +132,9 @@
 
         return helsingborgDataDb;
         });
-        events.child('hbg').limitToFirst(15).on("value", function(snapshot) {
+          events.child('hbg').limitToFirst(this.state.numbersOfItems).on("value", function(snapshot) {
             eventsData = snapshot.val();
-            console.log(eventsData,9);
+            
         });
         selfreference = this;
         console.log("[+] Save self-reference");
@@ -176,11 +155,19 @@
         });
         }, 4000);
     };
+     getMoreEvents = (e)=>{
+        e.preventDefault();
+        
+        console.log(88888);
+        this.setState({
+            numbersOfItems: 15
+        }, ()=> console.log(this.state.numbersOfItems))
+         
+    }
     
-
     render() {
-         this.getEvents();
         console.log("[~] Start render...", this.state.data);
+        this.pushEvents();
         if (this.state.mode === "view") {
         return (
             <div>
@@ -213,10 +200,11 @@
                     <div className="image-event-container"> <img src={key.img} alt=""/> </div>
                     <p>{'Location ' + key.city + ',  ' + key.country}</p>
                     <p className="shorter">{key.description}</p>
-                   
+                    
                 </li>
                 ))}
             </ul>
+            <button className="moreItems" onClick={this.getMoreEvents}>Get More Events</button>
             </div>
             </div>
         );
