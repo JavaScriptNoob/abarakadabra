@@ -45,10 +45,13 @@ code {
 }
 /* ! Eventcards/Main */
 .eventcards{
-  display: flex;
-  flex-wrap: wrap;
+  
   width: 100vw;
 
+}
+.d-flex {
+  justify-content: space-between;
+  padding: 0;
 }
 .eventcards > ul{
   display: flex;

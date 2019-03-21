@@ -30,12 +30,16 @@
     var selfreference;
 
     class App extends React.Component {
+   
+        
     state = {
         data: [" "],
         place: ' ',
         country: ' ',
         mode: "view",
-        numbersOfItems:11
+        numbersOfItems:100,
+        itemsToShow: 3,
+        expanded: false
     };
     
     pushEvents = async () => {
@@ -98,7 +102,7 @@
                 description: helsingborgDataDb[item].content.plain_text,
                 title: helsingborgDataDb[item].title.plain_text,
                 id: helsingborgDataDb[item].id,
-                img: helsingborgDataDb[item].featured_media.source_url
+                image: helsingborgDataDb[item].featured_media.source_url
                 });
             } else if (
             helsingborgDataDb[item]._embedded.location &&
@@ -113,7 +117,7 @@
                 description: helsingborgDataDb[item].content.plain_text,
                 title: helsingborgDataDb[item].title.plain_text,
                 id: helsingborgDataDb[item].id,
-                
+                image: 'https://upload.wikimedia.org/wikipedia/commons/a/ac/No_image_available.svg'
                 });
             } else {
             events
@@ -123,7 +127,7 @@
                 country: "emptyCountry",
                 description: "empty",
                 id: "empty",
-                image: "empty"
+                image: 'https://upload.wikimedia.org/wikipedia/commons/a/ac/No_image_available.svg'
                 });
             }
            
@@ -158,11 +162,12 @@
      getMoreEvents = (e)=>{
         e.preventDefault();
         
-        console.log(88888);
-        this.setState({
-            numbersOfItems: 15
-        }, ()=> console.log(this.state.numbersOfItems))
-         
+        this.state.itemsToShow < this.state.numbersOfItems ? ( 
+            this.setState({itemsToShow: this.state.itemsToShow += 6, expanded: true})
+        ) : (
+            this.setState ({itemsToShow: 3, expanded : false})
+        )
+        console.log(this.state.itemsToShow,'item', this.state.data,88888);
     }
     
     render() {
@@ -192,20 +197,28 @@
                     
             <div className="eventcards container-fluid">
             
-            <ul className="row">
-                {this.state.data.map((key,i) => (
+            <ul className="row d-flex">
+                {this.state.data.slice(0,this.state.itemsToShow).map((key,i) => (
                 <li key={i} className="col-md-3">
                     <h4>{key.title}</h4>
                     <span>{'id: ' + key.id}</span>
-                    <div className="image-event-container"> <img src={key.img} alt=""/> </div>
+                    <div className="image-event-container"> <img src={key.image} alt=""/> </div>
                     <p>{'Location ' + key.city + ',  ' + key.country}</p>
                     <p className="shorter">{key.description}</p>
                     
                 </li>
                 ))}
             </ul>
-            <button className="moreItems" onClick={this.getMoreEvents}>Get More Events</button>
+            
+            
             </div>
+            <div><a className="btn btn-primary" onClick={this.getMoreEvents} href="#">
+                {this.state.numbersOfItems <= this.state.itemsToShow ? (
+                    <span>Show less</span>
+                ) : (
+                    <span>Show more</span>
+                )}
+                </a></div>
             </div>
         );
         }
