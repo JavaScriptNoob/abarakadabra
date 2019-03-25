@@ -30,8 +30,8 @@
     var selfreference;
 
     class App extends React.Component {
-   
         
+       
     state = {
         data: [" "],
         place: ' ',
@@ -39,19 +39,24 @@
         mode: "view",
         numbersOfItems:100,
         itemsToShow: 3,
-        expanded: false
+        expanded: false,
+        city: ' ',
+        parsedData:' '
     };
     
     pushEvents = async () => {
+        console.log('loop');
         // e.preventDefault();
-        this.App = firebase.initializeApp(DB_CONFIG);
+        if (!firebase.apps.length) {
+            firebase.initializeApp(DB_CONFIG);
+         console.log('object')}
         const ref = firebase.database().ref("greatApp");
         
         const apiCallHelsignborg = await fetch(
         "https://api.helsingborg.se/event/json/wp/v2/event/?_embed&per_page=100"
         );
 
-        
+        const events = firebase.database().ref("events");
         const dataHbg = await apiCallHelsignborg.json();
         
         console.log(
@@ -62,25 +67,6 @@
                });
         if(helsingborgSnapshot === dataHbg  ){ref.child('helsinborg').set(dataHbg,console.log);}
         
-        
-       
-        
-       
-    }
-    
-    getEvents = async e => {
-        e.preventDefault();
-        console.log('click');
-        // let firebasedb = firebase.initializeApp(DB_CONFIG);
-        console.log('click111');
-        const ref = firebase.database().ref("greatApp");
-        console.log('click222');
-        const events = firebase.database().ref("events");
-        console.log('click333');
-        let callFunction = () => {
-        this.setState({ mode: "edit" });
-        };
-        callFunction();
         ref.child("helsinborg").on("value", function(snapshot) {
         helsingborgDataDb = snapshot.val();
         console.log('click555');
@@ -133,7 +119,7 @@
            
         });
         
-
+        
         return helsingborgDataDb;
         });
           events.child('hbg').limitToFirst(this.state.numbersOfItems).on("value", function(snapshot) {
@@ -150,15 +136,51 @@
             console.log("[-] Empty DB reply!");
             return;
         }
-        console.log(selfreference);
-        // 
+        
+         
         selfreference.setState({
             data: eventsData,
             place: helsingborgDataDb[5]["location"]["city"],
             country: helsingborgDataDb[5]["location"]["country"]
         });
         }, 4000);
+       
+        
+       
+    }
+    
+   getEvents = async (e) => {
+        e.preventDefault();
+       this.setState({city:e.target.elements.city.value.toLowerCase()}) 
+        console.log('click',);
+        // let firebasedb = firebase.initializeApp(DB_CONFIG);
+        console.log('click111', );
+        const ref = firebase.database().ref("greatApp");
+        console.log('click222');
+       
+        console.log('click333');
+        let callFunction = () => {
+        this.setState({ mode: "edit" });
+        };
+        callFunction();
+        if(this.state.city > 1  ){
+            console.log('if this.state.city > 1');
+        const filteredData = this.state.data.filter((i,n)=> { 
+            console.log('if this.state.city > 3');  
+             let cityLowerCase = i.city.toLowerCase() ;
+             console.log(cityLowerCase,'oioioi');
+             return cityLowerCase
+             
+        });
+        
+        console.log(filteredData,'Its filtered')
+        }
+        
     };
+    componentDidMount(){
+        this.pushEvents();
+    }
+    
      getMoreEvents = (e)=>{
         e.preventDefault();
         
@@ -171,12 +193,12 @@
     }
     
     render() {
-        console.log("[~] Start render...", this.state.data);
-        this.pushEvents();
+        console.log("[~] Start render...", this.state.city);
+        
         if (this.state.mode === "view") {
         return (
-            <div>
-            <Titles />
+            <div >
+            <Titles  /> 
             <Forms  getEvents={this.getEvents} />
             <Weather />
             <p> </p>
@@ -184,7 +206,7 @@
             <EventCards />
             </div>
         );
-        } else {
+        } else if (this.state.mode === "edit" && this.state.city <1 ) {
         return (
             <div>
             <Titles />
@@ -221,7 +243,17 @@
                 </a></div>
             </div>
         );
-        }
+        }else{
+            return  <div>
+            <Titles />
+            <Forms  getEvents={this.getEvents} />
+            <Weather />
+            <p> </p>
+            <h1>GoodNeews</h1>
+            <EventCards />
+            </div>    
+    }
+        
     }
     }
 
