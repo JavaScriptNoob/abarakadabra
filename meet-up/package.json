@@ -3,10 +3,17 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@material-ui/core": "^3.9.3",
+    "@react-firebase/auth": "^0.2.9",
+    "firebase": "^6.0.2",
     "latlon-geohash": "^1.1.0",
+    "material-ui": "^0.20.2",
+    "mdbreact": "^4.14.0",
+    "muicss": "^0.9.41",
     "ngeohash": "^0.6.3",
     "react": "^16.8.3",
     "react-dom": "^16.8.3",
+    "react-router-dom": "^5.0.0",
     "react-scripts": "2.1.5"
   },
   "scripts": {

@@ -6,3 +6,5 @@ export const DB_CONFIG = {
     storageBucket: "vuefb-f79ed.appspot.com",
     messagingSenderId: "69382994108"
 };
+
+// export const firebase = firebase.initializeApp( DB_CONFIG );

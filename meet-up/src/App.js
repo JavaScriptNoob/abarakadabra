@@ -1,44 +1,32 @@
 import React from "react";
 import Titles from "./components/titles";
 import Forms from "./components/forms";
-import Weather from "./components/weather";
+
 import firebase from "firebase";
 import EventCards from "./components/eventcards";
+import Auth from "./components/auth";
+import {BrowserRouter as Router, Route} from "react-router-dom"
 import { DB_CONFIG } from "./components/config";
+
 // console.log = function() {};
-let lat;
-let long;
-let geohashValue;
 let helsingborgDataDb;
 let eventsData;
 let helsingborgSnapshot;
-
 console.clear();
-
-navigator.geolocation.getCurrentPosition(function(position) {
-  lat = position.coords.latitude;
-  long = position.coords.longitude;
-});
-
-var geohash = require("ngeohash");
-setTimeout(function(params) {
-  geohashValue = geohash.encode(lat, long);
-  console.log(geohashValue, 1);
-}, 5000);
-
 var selfreference;
-
+let convert;
+let element;
 class App extends React.Component {
   state = {
     data: [" "],
-    place: " ",
     country: " ",
     mode: "view",
     numbersOfItems: 100,
     itemsToShow: 3,
     expanded: false,
     city: " ",
-    parsedData: " "
+    parsedData: " ",
+    date: " "
   };
 
   pushEvents = async () => {
@@ -50,128 +38,51 @@ class App extends React.Component {
     }
     const ref = firebase.database().ref("greatApp");
 
-    const apiCallHelsignborg = await fetch(
-      "https://api.helsingborg.se/event/json/wp/v2/event/?_embed&per_page=100"
-    );
-
     const events = firebase.database().ref("events");
-    const dataHbg = await apiCallHelsignborg.json();
 
-    console.log(dataHbg);
-    ref.child("helsingborg").on("value", function(snapshot) {
-      helsingborgSnapshot = snapshot.val();
-    });
-    if (helsingborgSnapshot === dataHbg) {
-      ref.child("helsinborg").set(dataHbg, console.log);
-    }
-
-    ref.child("helsinborg").on("value", function(snapshot) {
-      helsingborgDataDb = snapshot.val();
-      console.log("click555");
-      console.log(helsingborgDataDb[0], "aaaaaaaaaaaa");
-      helsingborgDataDb.forEach((element, item, index) => {
-        if (
-          helsingborgDataDb[item]._embedded.location &&
-          helsingborgDataDb[item]._embedded.location[0].country &&
-          helsingborgDataDb[item]._embedded.location[0].country &&
-          helsingborgDataDb[item].content.rendered &&
-          helsingborgDataDb[item].featured_media
-        ) {
-          events
-            .child("hbg")
-            .child(item)
-            .set({
-              city: helsingborgDataDb[item]._embedded.location[0].city,
-              country: helsingborgDataDb[item]._embedded.location[0].country,
-              description: helsingborgDataDb[item].content.plain_text,
-              title: helsingborgDataDb[item].title.plain_text,
-              id: helsingborgDataDb[item].id,
-              image: helsingborgDataDb[item].featured_media.source_url
-            });
-        } else if (
-          helsingborgDataDb[item]._embedded.location &&
-          !helsingborgDataDb[item]._embedded.location[0].country &&
-          helsingborgDataDb[item].featured_media
-        ) {
-          events
-            .child("hbg")
-            .child(item)
-            .set({
-              city: "helsingborgDataDb[item]._embedded.location[0].city",
-              country: "emptyValue",
-              description: helsingborgDataDb[item].content.plain_text,
-              title: helsingborgDataDb[item].title.plain_text,
-              id: helsingborgDataDb[item].id,
-              image:
-                "https://upload.wikimedia.org/wikipedia/commons/a/ac/No_image_available.svg"
-            });
-        } else {
-          events
-            .child("hbg")
-            .child(item)
-            .set({
-              city: "emptyCity",
-              country: "emptyCountry",
-              description: "empty",
-              id: "empty",
-              image:
-                "https://upload.wikimedia.org/wikipedia/commons/a/ac/No_image_available.svg"
-            });
-        }
-      });
-
-      return helsingborgDataDb;
-    });
+    const selfreference = this;
     events
-      .child("hbg")
       .limitToFirst(this.state.numbersOfItems)
       .on("value", function(snapshot) {
         eventsData = snapshot.val();
+        console.log(eventsData, "lllllllllll");
+        selfreference.setState({
+          data: eventsData
+        });
       });
-    selfreference = this;
+
+    this.setState({ data: eventsData });
+
     console.log("[+] Save self-reference");
 
     setTimeout(function(e) {
       console.log("[~] Setting up state");
 
-      if (!helsingborgDataDb) {
-        console.log("[-] Empty DB reply!");
-        return;
-      }
+      // if (!helsingborgDataDb) {
+      //   console.log("[-] Empty DB reply!");
+      //   return;
+      // }
 
-      selfreference.setState({
-        data: eventsData,
-        place: helsingborgDataDb[5]["location"]["city"],
-        country: helsingborgDataDb[5]["location"]["country"]
-      });
-    }, 4000);
+      // selfreference.setState({
+      //   data: eventsData
+      // });
+    }, 6000);
   };
 
   getEvents = async e => {
     e.preventDefault();
-    this.setState({ city: e.target.elements.city.value.toLowerCase() });
-    console.log("click");
+    // this.setState({ city: e.target.elements.city.value.toLowerCase() });
+    // console.log("click");
     // let firebasedb = firebase.initializeApp(DB_CONFIG);
-    console.log("click111");
+    // console.log("click111");
     const ref = firebase.database().ref("greatApp");
-    console.log("click222");
+    // console.log("click222");
 
-    console.log("click333");
+    // console.log("click333");
     let callFunction = () => {
       this.setState({ mode: "edit" });
     };
     callFunction();
-    if (this.state.city > 1) {
-      console.log("if this.state.city > 1");
-      const filteredData = this.state.data.filter((i, n) => {
-        console.log("if this.state.city > 3");
-        let cityLowerCase = i.city.toLowerCase();
-        console.log(cityLowerCase, "oioioi");
-        return cityLowerCase;
-      });
-
-      console.log(filteredData, "Its filtered");
-    }
   };
   componentDidMount() {
     this.pushEvents();
@@ -188,45 +99,56 @@ class App extends React.Component {
       : this.setState({ itemsToShow: 3, expanded: false });
     console.log(this.state.itemsToShow, "item", this.state.data, 88888);
   };
-
+  handleChange = input => e => {
+    this.setState({ [input]: e.target.value });
+  };
   render() {
+    const { city, date } = this.state;
+    const values = { city, date };
+   
     console.log("[~] Start render...", this.state.city);
 
     if (this.state.mode === "view") {
       return (
         <div>
           <Titles />
-          <Forms getEvents={this.getEvents} />
-          <Weather />
-          <p> </p>
-          <h1>YA VIJU</h1>
-          <EventCards />
+          <Router>
+           
+            <Route exact path="/" component={Auth} />
+            <Route exact path="/main" render = {() => <Forms  getEvents={this.getEvents}
+              handleChange={this.handleChange}
+              values={values} /> }/>
+            <p> </p>
+          </Router>
         </div>
       );
     } else if (this.state.mode === "edit" && this.state.city < 1) {
       return (
         <div>
           <Titles />
-          <Forms getEvents={this.getEvents} />
-          <Weather />
+          <Forms getEvents={this.getEvents} handleChange={this.handleChange} />
           <p> </p>
           <h1>YA VIJU</h1>
           <EventCards />
-
           <div className="eventcards container-fluid">
             <ul className="row d-flex">
               {this.state.data
                 .slice(0, this.state.itemsToShow)
                 .map((key, i) => (
-                  <li key={i} className="col-md-3">
+                  <li
+                    key={i}
+                    className="col-md-3"
+                    style={{ backgroundImage: "url(" + key.img + ")" }}
+                  >
                     <h4>{key.title}</h4>
                     <span>{"id: " + key.id}</span>
                     <div className="image-event-container">
                       {" "}
-                      <img src={key.image} alt="" />{" "}
+                      <img src={key.img} alt="" />{" "}
                     </div>
-                    <p>{"Location " + key.city + ",  " + key.country}</p>
+                    <p>{"Location " + key.city}</p>
                     <p className="shorter">{key.description}</p>
+                    <p>{"Start " + key.start + ", End " + key.end}</p>
                   </li>
                 ))}
             </ul>
@@ -250,11 +172,49 @@ class App extends React.Component {
       return (
         <div>
           <Titles />
-          <Forms getEvents={this.getEvents} />
-          <Weather />
+          <Forms getEvents={this.getEvents} handleChange={this.handleChange} />
+
           <p> </p>
           <h1>GoodNeews</h1>
+
           <EventCards />
+
+          <div className="eventcards container-fluid">
+            <ul className="row d-flex">
+              {this.state.data
+                .slice(0, this.state.itemsToShow)
+                .map((key, i) => (
+                  <li
+                    key={i}
+                    className="col-md-3"
+                    style={{ backgroundImage: "url(" + key.img + ")" }}
+                  >
+                    <h4>{key.title}</h4>
+                    <span>{"id: " + key.id}</span>
+                    <div className="image-event-container">
+                      {" "}
+                      <img src={key.img} alt="" />{" "}
+                    </div>
+                    <p>{"Location " + key.city}</p>
+                    <p className="shorter">{key.description}</p>
+                    <p>{"Start " + key.start + ", End " + key.end}</p>
+                  </li>
+                ))}
+            </ul>
+          </div>
+          <div>
+            <a
+              className="btn btn-primary"
+              onClick={this.getMoreEvents}
+              href="#"
+            >
+              {this.state.numbersOfItems <= this.state.itemsToShow ? (
+                <span>Show less</span>
+              ) : (
+                <span>Show more</span>
+              )}
+            </a>
+          </div>
         </div>
       );
     }
@@ -262,3 +222,91 @@ class App extends React.Component {
 }
 
 export default App;
+// const apiCallHelsignborg = await fetch(
+//   "https://api.helsingborg.se/event/json/wp/v2/event/?_embed&per_page=100"
+// );
+// const dataHbg = await apiCallHelsignborg.json();
+
+// console.log(dataHbg.stringify);
+// ref.child("helsingborg").on("value", function(snapshot) {
+//   helsingborgSnapshot = snapshot.val();
+// });
+// if (helsingborgSnapshot === dataHbg) {
+//   ref.child("helsinborg").set(dataHbg, console.log);
+// }
+
+// ref.child("helsinborg").on("value", function(snapshot) {
+//   helsingborgDataDb = snapshot.val();
+//   // console.log(helsingborgDataDb);
+//   // console.log(helsingborgDataDb[0],JSON.stringify(helsingborgDataDb[0]) ,"aaaaaaaaaaaa");
+//   function convertObjectValuesRecursive(obj, target, replacement) {
+//      obj = {...obj};
+//     Object.keys(obj).forEach((key) => {
+//       if (obj[key] == target) {
+//         obj[key] = replacement;
+//       } else if (typeof obj[key] == 'object' && !Array.isArray(obj[key])) {
+//         obj[key] = convertObjectValuesRecursive(obj[key], target, replacement);
+//       }
+//     });
+//     convert = obj;
+//    return obj
+
+//   }
+
+//   convertObjectValuesRecursive(helsingborgDataDb,null,'null')
+//   console.log(convert, 'out function');
+//   for (const key in convert) {
+//     if (convert.hasOwnProperty(key)) {
+//        element = convert[key];
+//       //  console.log(element,'LLLLLLLLLLLLLLLLL',key);
+
+//     }if (
+//       element._embedded.hasOwnProperty('location')  &&
+//       element._embedded.location[0].hasOwnProperty('city')&&
+//       element.hasOwnProperty('occasions')  &&
+//       element.occasions[0].hasOwnProperty('start_date') &&
+//       element.occasions[0].hasOwnProperty('end_date') &&
+//       element.hasOwnProperty('title') &&
+//       element.title.hasOwnProperty('plain_text') &&
+//       element.hasOwnProperty('content') &&
+//       element.content.hasOwnProperty('rendered') &&
+//       element.hasOwnProperty('id') &&
+//       element.hasOwnProperty('featured_media') &&
+//       element.featured_media.hasOwnProperty('source_url')
+
+//      ){
+//       //  console.log(key,element._embedded.location[0],65656, convert,
+//       // element._embedded.location[0].city ,
+//       // element.occasions[0].start_date ,
+//       // element.occasions[0].end_date,
+//       // element.title.plain_text,
+//       // element.content.rendered,
+//       // element.id,
+//       // element.featured_media.source_url
+
+//       //   )
+//  events.child(key)
+//   .set({
+//     city: element._embedded.location[0].city,
+//     start: element.occasions[0].start_date,
+//     end: element.occasions[0].end_date,
+//     img: element.featured_media.source_url,
+//     id:element.id,
+//     title:element.title.plain_text,
+//     description:element.content.rendered,
+
+//   });
+// }
+// else{
+//   console.log(key,',,,,,,,,');
+// }
+//   }
+//   console.log(element)
+//   return helsingborgDataDb;
+// });
+ /* /* <Auth/> */
+            /* <Forms
+              getEvents={this.getEvents}
+              handleChange={this.handleChange}
+              values={values}
+            /> */

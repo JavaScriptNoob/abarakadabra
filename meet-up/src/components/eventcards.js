@@ -5,11 +5,11 @@ import React, { Component } from 'react';
    
   render() {
     return (
-      <div>
+      <div>{this.props.data}
         <p>Here we will make shopcards</p>
-        <p>{this.props.date}</p>
-        <p>{this.props.place}</p>
-        <p>{this.props.country}</p>
+        <p> Hello:{this.props.stateData}</p>
+        <p></p>
+        <p></p>
       </div>
     )
   }
